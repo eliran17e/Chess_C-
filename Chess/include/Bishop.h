@@ -17,6 +17,7 @@ public:
  * @return if the move was valid
  */
     bool isValidMove( int toRow, int toCol) const override;
+    Piece* clone() const override { return new Bishop(*this); }
 
 };
 

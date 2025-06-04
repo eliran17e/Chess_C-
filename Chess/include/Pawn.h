@@ -17,6 +17,7 @@ public:
      */
     bool isValidMove( int toRow, int toCol) const override;
     bool canAttack(int toRow, int toCol) const override;
+    Piece* clone() const override { return new Pawn(*this); }
 };
 
 

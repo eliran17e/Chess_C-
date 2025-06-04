@@ -3,7 +3,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-
+#include "Board.h"
 #include <string>
 
 using std::cout;
@@ -26,12 +26,12 @@ class Chess {
 	void setFrames();
 	void setPieces();
 	void show() const;
-	void displayBoard() const;
+
 	void showAskInput() const;
 	bool isSame() const;
 	bool isValid() const;
 	bool isExit() const;
-	void excute();
+
 	void doTurn();
 
 public:
@@ -40,4 +40,8 @@ public:
 	Chess& operator=(const Chess&) = delete;
 	string getInput();
 	void setCodeResponse(int codeResponse);
+    void setInput(const std::string& input);
+    void excute();
+    void displayBoard() const;
+    void updateFromBoard(const Board& b);
 };

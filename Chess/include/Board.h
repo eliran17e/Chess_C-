@@ -124,6 +124,7 @@ private:
      */
     void handlePromotion(int row, int col, bool isWhite);
     void dumpBoard();
+    double evaluateMoveInternal(const Move& move, int depth);
 
 public:
     /**
@@ -132,6 +133,7 @@ public:
  * builds the chess board with a 8x8 matrix vector.
  */
     explicit Board(const std::string& board);
+    Board(const Board& other);
     /**
  *  Destructor
  */
@@ -179,6 +181,19 @@ public:
      * @return a vector of the top moves using PriorityQueue
      */
     std::vector<Move> getTopMoves(int count, int depth);
+    /**
+     *
+     * @param count
+     * @param depth
+     * @param numThreads
+     * @return a vector of the top moves using threads for faster and more efficient results
+     */
+    std::vector<Move> getTopMovesMultithreaded(int count, int depth, int numThreads);
+    /**
+     *
+     * @return a string that represents the current board state
+     */
+    std::string toString() const;
 
 };
 

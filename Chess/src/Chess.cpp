@@ -1,6 +1,7 @@
 #include "../include/Chess.h"
 #include <iostream>
 #include <string>
+#include "Board.h"
 
 using namespace std;
 
@@ -326,4 +327,12 @@ void Chess::setCodeResponse(int codeResponse)
 		((21 == codeResponse) || (codeResponse == 31)) ||
 		((41 == codeResponse) || (codeResponse == 42)))
 		m_codeResponse = codeResponse;
+}
+
+void Chess::setInput(const std::string& input) {
+    m_input = input;
+}
+void Chess::updateFromBoard(const Board& b) {
+    m_boardString = b.toString();
+    setPieces();  // redraw the pieces from the new string
 }

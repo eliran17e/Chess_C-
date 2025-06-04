@@ -16,6 +16,7 @@ public:
  * @return true if the square  it wants to move is horizontal or diagonal to the queen
  */
     bool isValidMove( int toRow, int toCol) const override;
+    Piece* clone() const override { return new Queen(*this); }
 
 };
 

@@ -1,0 +1,7 @@
+/mnt/c/Users/User/homework1CPP/chess-ex1-eliran17e/Chess/build/CMakeFiles/Chess.dir
+/mnt/c/Users/User/homework1CPP/chess-ex1-eliran17e/Chess/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/User/homework1CPP/chess-ex1-eliran17e/Chess/build/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/User/homework1CPP/chess-ex1-eliran17e/Chess/build/include/CMakeFiles/edit_cache.dir
+/mnt/c/Users/User/homework1CPP/chess-ex1-eliran17e/Chess/build/include/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/User/homework1CPP/chess-ex1-eliran17e/Chess/build/src/CMakeFiles/edit_cache.dir
+/mnt/c/Users/User/homework1CPP/chess-ex1-eliran17e/Chess/build/src/CMakeFiles/rebuild_cache.dir

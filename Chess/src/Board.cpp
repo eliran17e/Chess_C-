@@ -9,6 +9,11 @@
 #include <stdexcept>
 #include <cmath>
 #include <memory>
+#include <mutex>
+#include <thread>
+#include <atomic>
+#include <algorithm>
+
 using namespace std;
 
 Board::Board(const string &board) {
@@ -40,6 +45,18 @@ Board::Board(const string &board) {
         if (col == 8) {
             col = 0;
             row++;
+        }
+    }
+}
+
+Board::Board(const Board& other) {
+    whiteTurn = other.whiteTurn;
+    chessBoard.resize(8, std::vector<Piece*>(8, nullptr));
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            if (other.chessBoard[r][c]) {
+                chessBoard[r][c] = other.chessBoard[r][c]->clone();
+            }
         }
     }
 }
@@ -85,6 +102,7 @@ int Board::isLegalMove(int fromRow, int fromCol, int toRow, int toCol) {
     if (!chessBoard[fromRow][fromCol]->isValidMove(toRow, toCol)) {
         return 21; // Invalid move pattern for this piece
     }
+
     // Special handling for pawn diagonal capture
     if (auto* pawn = dynamic_cast<Pawn*>(chessBoard[fromRow][fromCol])) {
         int direction = pawn->getIsWhite() ? 1 : -1; // white moves down (row - 1), black moves up (row + 1)
@@ -122,6 +140,7 @@ int Board::isLegalMove(int fromRow, int fromCol, int toRow, int toCol) {
 
         return 21; // any other move is illegal
     }
+
     // For pieces other than Knight, check if the path is clear
     if (dynamic_cast<Knight*>(chessBoard[fromRow][fromCol]) == nullptr) {
         if (!isPathClear(fromRow, fromCol, toRow, toCol)) {
@@ -285,10 +304,14 @@ std::pair<int, int> Board::findKing(bool isWhite) {
         }
     }
     throw MyExceptions("King not found for " + std::string(isWhite ? "White" : "Black"));
-
 }
 
 void Board::makeMove(int fromRow, int fromCol, int toRow, int toCol) {
+    // Delete captured piece first
+    if (chessBoard[toRow][toCol] != nullptr) {
+        delete chessBoard[toRow][toCol];
+    }
+
     // Actually execute the move on the board
     Piece* piece = chessBoard[fromRow][fromCol];
     chessBoard[fromRow][fromCol] = nullptr;
@@ -310,6 +333,7 @@ void Board::makeMove(int fromRow, int fromCol, int toRow, int toCol) {
         }
     }
 }
+
 std::vector<Move> Board::getAllValidMoves(bool turn) {
     std::vector<Move> moves;
     for (int fromRow = 0; fromRow < 8; ++fromRow) {
@@ -326,7 +350,6 @@ std::vector<Move> Board::getAllValidMoves(bool turn) {
                             m.toRow = toRow;
                             m.toCol = toCol;
 
-
                             m.notation = std::string(1, 'a' + fromRow) + std::to_string(fromCol + 1)
                                          + std::string(1, 'a' + toRow) + std::to_string(toCol + 1);
                             moves.push_back(m);
@@ -340,175 +363,143 @@ std::vector<Move> Board::getAllValidMoves(bool turn) {
 }
 
 void Board::evaluateAllMoves(int depth) {
-    currentMoves.clear(); // store them here if needed later
+    currentMoves.clear();
     currentMoves = getAllValidMoves(whiteTurn);
     for (Move& move : currentMoves) {
         move.score = evaluateMove(move, depth);
     }
 }
+
 double Board::evaluateMove(const Move& move, int depth) {
-    double score = 0;
+    Board copy = *this; // Deep copy
+    return copy.evaluateMoveInternal(move, depth);
+}
+
+// FIXED: Proper board state management in recursive evaluation
+double Board::evaluateMoveInternal(const Move& move, int depth) {
+    bool isWhite = whiteTurn;
     Piece* attacker = chessBoard[move.fromRow][move.fromCol];
     Piece* target = chessBoard[move.toRow][move.toCol];
 
-    if (!attacker) return -999; // Invalid move - no piece at source
+    if (!attacker || attacker->getIsWhite() != isWhite) return -999;
 
-    // Save original piece position
-    int origRow = attacker->getRow();
-    int origCol = attacker->getCol();
+    // Save captured piece for restoration
+    Piece* capturedPiece = target;
 
-    // Simulate move
+    // Make the move
     chessBoard[move.fromRow][move.fromCol] = nullptr;
     chessBoard[move.toRow][move.toCol] = attacker;
     attacker->setRow(move.toRow);
     attacker->setCol(move.toCol);
 
-    // Base score from board position
-    score += evaluateBoardPosition(whiteTurn);
+    double score = 0.0;
+    score += evaluateBoardPosition(isWhite);
 
-
-
-    // Center control bonus - this should now have a significant effect
+    // Central control bonus
     if ((move.toRow >= 2 && move.toRow <= 5) && (move.toCol >= 2 && move.toCol <= 5)) {
         score += 2.0;
-
     }
     if ((move.toRow == 3 || move.toRow == 4) && (move.toCol == 3 || move.toCol == 4)) {
         score += 4.5;
-
     }
 
-    // Safety bonus
-    if (!isSquareUnderAttack(move.toRow, move.toCol, !attacker->getIsWhite())) {
+    // Square safety
+    if (!isSquareUnderAttack(move.toRow, move.toCol, !isWhite)) {
         score += 0.3;
     }
 
-    // Capturing a piece
-    if (target) {
-        double captureValue = target->getValue();
+    if (capturedPiece) {
+        double captureValue = capturedPiece->getValue();
         score += captureValue;
 
+        bool isSafeCapture = !isSquareUnderAttack(move.toRow, move.toCol, !isWhite);
+        bool attackerIsProtected = isSquareProtected(move.toRow, move.toCol, isWhite);
 
-        bool isSafeCapture = !isSquareUnderAttack(move.toRow, move.toCol, !attacker->getIsWhite());
-        bool attackerIsProtected = isSquareProtected(move.toRow, move.toCol, attacker->getIsWhite());
-
-        // Safe capture = bonus
-        if (isSafeCapture) {
-            double safeBonus = captureValue * 2;
-            score += safeBonus;
-
-        }
-
-        // Encourage equal or favorable trades
-        if (attacker->getValue() <= target->getValue()) {
-            score += 1.5;
-
-        }
-
-        // Penalty if the capture is dangerous
+        if (isSafeCapture) score += captureValue * 2;
+        if (attacker->getValue() <= captureValue) score += 1.5;
         if (!isSafeCapture && !attackerIsProtected) {
-            double loss = attacker->getValue() - target->getValue();
-            if (loss > 0) {
-                double penalty = loss * 2;
-                score -= penalty;
-
-            }
+            double penalty = (attacker->getValue() - captureValue) * 2;
+            score -= penalty;
         }
     }
 
-    // Penalty for moves to unsafe squares
-    if (isSquareUnderAttack(move.toRow, move.toCol, !attacker->getIsWhite()) &&
-        !isSquareProtected(move.toRow, move.toCol, attacker->getIsWhite()))
-    {
-        double lossPenalty = attacker->getValue() * 1.2;
-        score -= lossPenalty;
-
+    // Penalize if attacker is vulnerable
+    if (isSquareUnderAttack(move.toRow, move.toCol, !isWhite) &&
+        !isSquareProtected(move.toRow, move.toCol, isWhite)) {
+        score -= attacker->getValue() * 1.2;
     }
 
-    // Evaluate piece threats and protections
+    // Threat & support analysis
     for (int r = 0; r < 8; ++r) {
         for (int c = 0; c < 8; ++c) {
-            if (chessBoard[r][c] == nullptr) continue;
             Piece* piece = chessBoard[r][c];
             if (!piece || piece == attacker) continue;
 
-            bool isEnemy = piece->getIsWhite() != attacker->getIsWhite();
+            bool isEnemy = piece->getIsWhite() != isWhite;
             bool isAlly = !isEnemy;
 
-            // Check if attacker can attack this piece after the move
             if (attacker->canAttack(r, c) &&
-                (dynamic_cast<Knight*>(attacker) != nullptr ||
-                 dynamic_cast<Pawn*>(attacker) != nullptr ||
-                 isPathClear(move.toRow, move.toCol, r, c))) {
+                (dynamic_cast<Knight*>(attacker) || dynamic_cast<Pawn*>(attacker) || isPathClear(move.toRow, move.toCol, r, c))) {
 
-                // Threatening valuable enemy
                 if (isEnemy) {
                     double diff = piece->getValue() - attacker->getValue();
                     if (diff >= -1.0) {
-                        double threatBonus = std::max(0.5, diff) * 0.8;
-                        score += threatBonus;
-
-
+                        score += std::max(0.5, diff) * 0.8;
                         if (!isSquareProtected(r, c, piece->getIsWhite())) {
-                            double unprotectedBonus = std::max(1.0, diff) * 1.2;
-                            score += unprotectedBonus;
-
+                            score += std::max(1.0, diff) * 1.2;
                         }
                     } else if (!isSquareProtected(r, c, piece->getIsWhite())) {
                         score += 1.2;
-
                     }
                 }
 
-                // Protecting threatened ally
-                if (isAlly && isSquareUnderAttack(r, c, !attacker->getIsWhite())) {
-                    bool protectorIsSafe = !isSquareUnderAttack(move.toRow, move.toCol, !attacker->getIsWhite());
-                    if (protectorIsSafe) {
-                        double protectionBonus = piece->getValue() * 0.2;
-                        score += protectionBonus;
-
+                if (isAlly && isSquareUnderAttack(r, c, !isWhite)) {
+                    if (!isSquareUnderAttack(move.toRow, move.toCol, !isWhite)) {
+                        score += piece->getValue() * 0.2;
                     } else {
-                        score -= 0.3;  // Small penalty for risky protection
-
+                        score -= 0.3;
                     }
                 }
             }
         }
     }
 
-    // Apply recursion for deeper evaluation (opponent's best reply)
+    // Recursive lookahead
     if (depth > 0) {
-        whiteTurn = !whiteTurn;  // Switch turn temporarily
-        std::vector<Move> replies = getAllValidMoves(whiteTurn);
+        whiteTurn = !whiteTurn;
+        auto replies = getAllValidMoves(whiteTurn);
 
-        double bestReplyScore = -1000.0;  // Very low initial value
-        for (const Move& reply : replies) {
-
-            // (what's good for opponent is bad for us)
-            double replyScore = -evaluateMove(reply, depth - 1);
-            bestReplyScore = std::max(bestReplyScore, replyScore);
+        double bestReplyScore = 0.0;
+        if (!replies.empty()) {
+            bestReplyScore = -1000.0;
+            for (const auto& reply : replies) {
+                bestReplyScore = std::max(bestReplyScore, -evaluateMoveInternal(reply, depth - 1));
+            }
         }
 
-        whiteTurn = !whiteTurn;  // Switch turn back
-
-
-        double replyPenalty = bestReplyScore * 0.8;
-        score -= replyPenalty;
-
+        score -= bestReplyScore * 0.8;
+        whiteTurn = !whiteTurn; // Restore turn
     }
 
-    // Undo move
-    chessBoard[move.toRow][move.toCol] = target;
+    // FIXED: Restore the board state properly
     chessBoard[move.fromRow][move.fromCol] = attacker;
-    attacker->setRow(origRow);
-    attacker->setCol(origCol);
+    chessBoard[move.toRow][move.toCol] = capturedPiece;
+    attacker->setRow(move.fromRow);
+    attacker->setCol(move.fromCol);
 
+    // Check for king presence (safety check)
+    try {
+        findKing(true);
+        findKing(false);
+    } catch (const MyExceptions&) {
+        return -9999;
+    }
 
     return score;
 }
 
 std::vector<Move> Board::getTopMoves(int count, int depth) {
-    evaluateAllMoves(depth); // calculate full scores for all currentMoves
+    evaluateAllMoves(depth);
     PriorityQueue<std::shared_ptr<Move>> pq;
 
     if (currentMoves.empty()) {
@@ -525,19 +516,14 @@ std::vector<Move> Board::getTopMoves(int count, int depth) {
         top.push_back(*pq.poll());
     }
 
-
-    for (const Move& m : top) {
-        Piece* piece = chessBoard[m.fromRow][m.fromCol];
-
-    }
-
     return top;
 }
+
 std::ostream& operator<<(std::ostream& os, const Move& m) {
     os << m.notation << " (score: " << m.score << ")";
     return os;
 }
-// Check if a square is protected by pieces of a certain color
+
 bool Board::isSquareProtected(int row, int col, bool byWhite) {
     for (int r = 0; r < 8; ++r) {
         for (int c = 0; c < 8; ++c) {
@@ -552,11 +538,13 @@ bool Board::isSquareProtected(int row, int col, bool byWhite) {
     }
     return false;
 }
+
 double Board::evaluateBoardPosition(bool isWhite) {
     double score = 0.0;
 
     int homeRow = isWhite ? 0 : 7;
     int pawnStartRow = isWhite ? 1 : 6;
+    int stage = getGameStage();
 
     for (int row = 0; row < 8; ++row) {
         for (int col = 0; col < 8; ++col) {
@@ -568,17 +556,20 @@ double Board::evaluateBoardPosition(bool isWhite) {
                 if (row != pawnStartRow) score += 0.5;
             }
 
+            if (dynamic_cast<King*>(piece)) {
+                score += evaluateKingSafety(row, col, isWhite, stage);
+            }
+
             // Reward minor piece development
             if ((dynamic_cast<Knight *>(piece) || dynamic_cast<Bishop *>(piece)) && row != homeRow) {
                 score += 0.5;
             }
-
-        }}
-
+        }
+    }
 
     return score;
 }
-// Determine the game stage (0=opening, 1=middlegame, 2=endgame). will use it to improve the code later on.
+
 int Board::getGameStage() {
     int pieceCount = 0;
     for (int r = 0; r < 8; ++r) {
@@ -591,7 +582,7 @@ int Board::getGameStage() {
     if (pieceCount > 16) return 1;  // Middlegame
     return 2;                       // Endgame
 }
-// Evaluate king safety. will use it to improve the code later on.
+
 double Board::evaluateKingSafety(int row, int col, bool isWhite, int gameStage) {
     double score = 0;
 
@@ -620,7 +611,6 @@ double Board::evaluateKingSafety(int row, int col, bool isWhite, int gameStage) 
 
     return score;
 }
-
 
 void Board::handlePromotion(int row, int col, bool isWhite) {
     char choice;
@@ -653,7 +643,7 @@ void Board::handlePromotion(int row, int col, bool isWhite) {
         break;
     }
 }
-// Helper function that helped me debug the code keeping it for future code upgrades.
+
 void Board::dumpBoard() {
     std::cout << "Current board state:\n";
     for (int row = 0; row < 8; ++row) {
@@ -668,4 +658,83 @@ void Board::dumpBoard() {
         std::cout << "\n";
     }
     std::cout << "  1 2 3 4 5 6 7 8\n";
+}
+
+// FIXED: Completely rewritten multithreaded function
+std::vector<Move> Board::getTopMovesMultithreaded(int count, int depth, int numThreads) {
+    // First get all valid moves
+    std::vector<Move> allMoves = getAllValidMoves(whiteTurn);
+
+    if (allMoves.empty()) {
+        throw MyExceptions("No legal moves available (checkmate or stalemate).");
+    }
+
+    // Thread-safe containers
+    std::mutex scoresMutex;
+    std::vector<double> scores(allMoves.size(), -9999.0);
+    std::atomic<int> moveIndex(0);
+
+    // Worker function for threads
+    auto worker = [&]() {
+        while (true) {
+            int currentIndex = moveIndex.fetch_add(1);
+            if (currentIndex >= static_cast<int>(allMoves.size())) {
+                break;
+            }
+
+            // Each thread gets its own board copy for evaluation
+            Board boardCopy = *this;
+            double score = boardCopy.evaluateMove(allMoves[currentIndex], depth);
+
+            // Thread-safe assignment of score
+            std::lock_guard<std::mutex> lock(scoresMutex);
+            scores[currentIndex] = score;
+        }
+    };
+
+    // Create and start threads
+    std::vector<std::thread> threads;
+    for (int i = 0; i < numThreads; ++i) {
+        threads.emplace_back(worker);
+    }
+
+    // Wait for all threads to complete
+    for (auto& thread : threads) {
+        if (thread.joinable()) {
+            thread.join();
+        }
+    }
+
+    // Assign scores to moves and sort
+    for (size_t i = 0; i < allMoves.size(); ++i) {
+        allMoves[i].score = scores[i];
+    }
+
+    // Sort moves by score (highest first)
+    std::sort(allMoves.begin(), allMoves.end(),
+              [](const Move& a, const Move& b) { return a.score > b.score; });
+
+    // Return top moves
+    std::vector<Move> topMoves;
+    int maxMoves = std::min(count, static_cast<int>(allMoves.size()));
+    for (int i = 0; i < maxMoves; ++i) {
+        topMoves.push_back(allMoves[i]);
+    }
+
+    return topMoves;
+}
+
+
+std::string Board::toString() const {
+    std::string result;
+    for (int row = 0; row < 8; ++row) {
+        for (int col = 0; col < 8; ++col) {
+            if (chessBoard[row][col]) {
+                result += chessBoard[row][col]->getSymbol();
+            } else {
+                result += '#';
+            }
+        }
+    }
+    return result;
 }

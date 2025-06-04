@@ -29,6 +29,11 @@ public:
      * @param row (location of the piece)
      */
     Piece(bool isWhite,char symbol,int col,int row);
+    /**
+     *
+     * clone function for all the pieces
+     */
+    virtual Piece* clone() const = 0;
     virtual ~Piece() = default;
     Piece(const Piece& other);
     Piece& operator=(const Piece& other);
