@@ -36,6 +36,11 @@ add_executable (Chess
         include/Pawn.h
         src/main.cpp
         include/MyExceptions.h
+        src/AIEngine.cpp
+        include/AIEngine.h
+        include/GameRunner.h
+        src/GameRunner.cpp
+        include/Exception_InvalidMove.h
 )
 
 

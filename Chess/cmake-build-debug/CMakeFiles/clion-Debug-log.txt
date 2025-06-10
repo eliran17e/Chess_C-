@@ -1,0 +1,4 @@
+C:\Users\User\AppData\Local\JetBrains\CLion2025.1\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/cygdrive/c/Users/User/AppData/Local/Programs/CLion/bin/ninja/cygwin/x64/ninja.exe -G Ninja -S /cygdrive/c/Users/User/homework1CPP/chess-ex1-eliran17e/Chess -B /cygdrive/c/Users/User/homework1CPP/chess-ex1-eliran17e/Chess/cmake-build-debug
+-- Configuring done (0.3s)
+-- Generating done (0.4s)
+-- Build files have been written to: /cygdrive/c/Users/User/homework1CPP/chess-ex1-eliran17e/Chess/cmake-build-debug
