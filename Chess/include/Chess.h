@@ -6,43 +6,36 @@
 #include "Board.h"
 #include <string>
 
-using std::cout;
-using std::cin; 
-using std::endl;
-using std::string; 
-
-const int _SIZE = 21;
-
 class Chess {
-	unsigned char m_board[_SIZE][_SIZE] = { 0 };
-	bool m_turn = true;
-	string m_boardString;
-	string m_input;
-	string m_msg = "\n";
-	string m_errorMsg = "\n";
-	int m_codeResponse;
+    static constexpr int kDisplaySize = 21;
+    unsigned char m_board[kDisplaySize][kDisplaySize] = { 0 };
+    bool m_turn = true;
+    std::string m_boardString;
+    std::string m_input;
+    std::string m_msg = "\n";
+    std::string m_errorMsg = "\n";
+    int m_codeResponse;
 
-	void clear() const;
-	void setFrames();
-	void setPieces();
-	void show() const;
+    void clear() const;
+    void setFrames();
+    void setPieces();
+    void show() const;
 
-	void showAskInput() const;
-	bool isSame() const;
-	bool isValid() const;
-	bool isExit() const;
+    void showAskInput() const;
+    bool isSame() const;
+    bool isValid() const;
+    bool isExit() const;
 
-	void doTurn();
+    void doTurn();
 
 public:
-	Chess(const string& start = "RNBQKBNRPPPPPPPP################################pppppppprnbqkbnr");
-	Chess(const Chess&)=delete;
-	Chess& operator=(const Chess&) = delete;
-	string getInput(const string& aiInput = "");
-	void setCodeResponse(int codeResponse);
+    Chess(const std::string& start = "RNBQKBNRPPPPPPPP################################pppppppprnbqkbnr");
+    Chess(const Chess&) = delete;
+    Chess& operator=(const Chess&) = delete;
+    std::string getInput(const std::string& aiInput = "");
+    void setCodeResponse(int codeResponse);
     void setInput(const std::string& input);
     void excute();
     void displayBoard() const;
     void updateFromBoard(const Board& b);
-    void applyMove(const Move& move);
 };

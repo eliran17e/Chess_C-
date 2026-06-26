@@ -1,7 +1,6 @@
-#include "../include/Chess.h"
+#include "Chess.h"
 #include <iostream>
 #include <string>
-#include "Board.h"
 
 using namespace std;
 
@@ -29,8 +28,8 @@ void Chess::clear() const
 // create the GUI - ASCII art
 void Chess::setFrames() 
 { 
-	for (size_t row = 0; row < _SIZE; ++row)
-		for (size_t col = 0; col < _SIZE; ++col)
+	for (size_t row = 0; row < Chess::kDisplaySize; ++row)
+		for (size_t col = 0; col < Chess::kDisplaySize; ++col)
 			m_board[row][col] = 32;
 
 	m_board[0][0] = 201;  m_board[0][20] = 187;
@@ -99,8 +98,8 @@ void Chess::clear() const
 
 void Chess::setFrames()
 {
-	for (size_t row = 0; row < _SIZE; ++row)
-		for (size_t col = 0; col < _SIZE; ++col)
+	for (size_t row = 0; row < Chess::kDisplaySize; ++row)
+		for (size_t col = 0; col < Chess::kDisplaySize; ++col)
 			m_board[row][col] = ' ';
 
 	m_board[0][0] = '+';
@@ -169,9 +168,9 @@ void Chess::setPieces()
 // print the only the board to screen 
 void Chess::show() const 
 {
-	for (size_t row = 0; row < _SIZE; ++row)
+	for (size_t row = 0; row < Chess::kDisplaySize; ++row)
 	{
-		for (size_t col = 0; col < _SIZE; ++col)
+		for (size_t col = 0; col < Chess::kDisplaySize; ++col)
 			cout << m_board[row][col];
 		cout << endl;
 	}
@@ -197,13 +196,13 @@ bool Chess::isSame() const
 {
 	return ((m_input[0] == m_input[2]) && (m_input[1] == m_input[3]));
 } 
-// check if the input is lockations at board
 bool Chess::isValid() const
 {
-	return ((('A' <= m_input[0]) && (m_input[0] <= 'H')) || (('a' <= m_input[0]) && (m_input[0] <= 'h')) &&
-		(('1' <= m_input[1]) && (m_input[1] <= '8')) &&
-		(('A' <= m_input[2]) && (m_input[2] <= 'H')) || (('a' <= m_input[2]) && (m_input[2] <= 'h')) &&
-		(('1' <= m_input[3]) && (m_input[3] <= '8')));
+    auto inColRange = [](char c) { return ('a' <= c && c <= 'h') || ('A' <= c && c <= 'H'); };
+    auto inRowRange = [](char c) { return '1' <= c && c <= '8'; };
+    return m_input.size() >= 4
+        && inColRange(m_input[0]) && inRowRange(m_input[1])
+        && inColRange(m_input[2]) && inRowRange(m_input[3]);
 }
 	
 // check if the input is exit or quit  
@@ -341,11 +340,3 @@ void Chess::updateFromBoard(const Board& b) {
     m_boardString = b.toString();
     setPieces();  // redraw the pieces from the new string
 }
-//void Chess::applyMove(const Move& move) {
-//    int srcIdx = move.fromRow * 8 + move.fromCol;
-//    int dstIdx = move.toRow * 8 + move.toCol;
-//    char piece = m_boardString[srcIdx];
-//    m_boardString[srcIdx] = '#';
-//    m_boardString[dstIdx] = piece;
-//    setPieces();  // redraw
-//}

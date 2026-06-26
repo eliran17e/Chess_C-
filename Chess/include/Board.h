@@ -6,7 +6,6 @@
 #define CHESS_BOARD_H
 #include "Piece.h"
 #include <vector>
-#include "Pawn.h"
 #include <ostream>
 #include <map>
 /**

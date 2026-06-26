@@ -10,10 +10,7 @@ class Queen: public Piece{
 public:
     Queen(bool isWhite, char symbol, int col, int row);
 /**
- * isValid function checks diagonal and horizontal movement only
- * @param toRow(location of the queen)
- * @param toCol (location of the queen)
- * @return true if the square  it wants to move is horizontal or diagonal to the queen
+ * @return true if the target square is reachable by queen movement (rank, file, or diagonal)
  */
     bool isValidMove( int toRow, int toCol) const override;
     Piece* clone() const override { return new Queen(*this); }

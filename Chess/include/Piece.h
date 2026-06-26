@@ -18,8 +18,8 @@ class Board; // This line is crucial!
  */
 class Piece {
 protected:
-    char symbol;
     bool isWhite;
+    char symbol;
     int col;
     int row;
     double value;

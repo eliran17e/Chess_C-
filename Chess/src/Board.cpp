@@ -1,17 +1,15 @@
-#include "../include/Board.h"
-#include "../include/Knight.h"
-#include "../include/Bishop.h"
-#include "../include/Rook.h"
-#include "../include/Queen.h"
-#include "../include/King.h"
-#include "../include/PriorityQueue.h"
-#include <stdexcept>
-#include <cmath>
-#include <memory>
-#include <algorithm>
+#include "Board.h"
+#include "Knight.h"
+#include "Bishop.h"
+#include "Rook.h"
+#include "Queen.h"
+#include "King.h"
+#include "Pawn.h"
+#include "PriorityQueue.h"
 #include "Exception_InvalidMove.h"
-
-using namespace std;
+#include "MyExceptions.h"
+#include <cmath>
+#include <algorithm>
 constexpr int ERR_NO_PIECE         = 11;
 constexpr int ERR_OPPONENT_PIECE   = 12;
 constexpr int ERR_DEST_SAME_COLOR  = 13;
@@ -20,7 +18,7 @@ constexpr int ERR_MOVE_CAUSES_CHECK = 31;
 constexpr int MOVE_LEGAL           = 42;
 constexpr int MOVE_LEGAL_CHECK     = 41;
 
-Board::Board(const string &board) {
+Board::Board(const std::string &board) {
     if (board.size() != 64) {
         throw MyExceptions("Board size must be 64");
     }
@@ -31,7 +29,7 @@ Board::Board(const string &board) {
     countMoves = 0;
     int col = 0;
     int row = 0;
-    chessBoard.resize(8, vector<Piece*>(8, nullptr));
+    chessBoard.resize(8, std::vector<Piece*>(8, nullptr));
     for(char c : board) {
         switch (c) {
             case 'P': chessBoard[row][col] = new Pawn(true, 'P', col, row); break;
@@ -384,7 +382,7 @@ std::vector<Move> Board::getAllValidMoves(bool turn) const{
                 for (int toRow = 0; toRow < 8; ++toRow) {
                     for (int toCol = 0; toCol < 8; ++toCol) {
                         int res = isLegalMove(fromRow, fromCol, toRow, toCol);
-                        if (res == 41 || res == 42) {
+                        if (res == MOVE_LEGAL || res == MOVE_LEGAL_CHECK) {
                             Move m;
                             m.fromRow = fromRow;
                             m.fromCol = fromCol;
@@ -704,10 +702,8 @@ int Board::handleCastlingMove(const std::string& moveStr) {
     int start = std::min(kingCol, rookCol) + 1;
     int end = std::max(kingCol, rookCol);
     for (int col = start; col < end; col++) {
-        std::cout<< col <<endl;
         if (chessBoard[kingRow][col] != nullptr) {
-            std::cout<< col <<endl;
-            return ERR_DEST_SAME_COLOR; // Path blocked
+            return ERR_DEST_SAME_COLOR;
         }
     }
 

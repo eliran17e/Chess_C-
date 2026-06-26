@@ -1,2 +1,1 @@
-﻿target_sources (Chess PRIVATE "main.cpp"
-							  "Chess.cpp")
+# Sources and include paths are managed from the root CMakeLists.txt

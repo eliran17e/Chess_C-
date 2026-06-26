@@ -1,10 +1,11 @@
 #include "AIEngine.h"
 #include "MyExceptions.h"
+#include "PriorityQueue.h"
 #include <algorithm>
 #include <atomic>
 #include <thread>
-#include <cstdlib>  // For rand()
-#include "PriorityQueue.h" // Assuming this is correct
+#include <memory>
+#include <cstdlib>
 
 std::vector<Move> AIEngine::getTopMovesMultithreaded(Board& board, int count, int depth, int numThreads) {
 

@@ -1,1 +1,1 @@
-﻿target_include_directories (Chess PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+# Sources and include paths are managed from the root CMakeLists.txt

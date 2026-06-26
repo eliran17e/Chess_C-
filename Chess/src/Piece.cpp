@@ -2,7 +2,7 @@
 // Created by User on 05/04/2025.
 //
 
-#include "../include/Piece.h"
+#include "Piece.h"
 
 Piece::Piece(bool isWhite, char symbol, int col, int row)
         : isWhite(isWhite), symbol(symbol), col(col), row(row) {}
@@ -20,7 +20,7 @@ Piece& Piece::operator=(const Piece& other) {
     this->isWhite = other.isWhite;
     this->col = other.col;
     this->row = other.row;
-    this->value = other.value;  // <-- ADD THIS LINE!
+    this->value = other.value;
     return *this;
 }
 double Piece::getValue() const {
@@ -43,8 +43,8 @@ int Piece::getRow() const {
     return row;
 }
 void Piece::setCol(int x) {
-    Piece::col = x;
+    col = x;
 }
 void Piece::setRow(int x) {
-    Piece::row = x;
+    row = x;
 }

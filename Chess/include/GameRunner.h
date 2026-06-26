@@ -16,9 +16,8 @@ private:
 public:
     static void runAutoplay(int depth, int threads, int movesToPlay = 8);
     static void runManual(int depth, int threads);
-    static void runVsComputer(int depth, int threads);  // Future: user vs AI
+    static void runVsComputer(int depth, int threads);
     static void printSuggestions(Board& b, int depth, int threads);
-    void runVsComputer2(int depth);
 };
 
 

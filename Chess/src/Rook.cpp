@@ -2,7 +2,7 @@
 // Created by User on 05/04/2025.
 //
 
-#include "../include/Rook.h"
+#include "Rook.h"
 
 Rook::Rook(bool isWhite, char symbol, int col, int row) : Piece(isWhite, symbol, col, row) {
     value = 5.0;

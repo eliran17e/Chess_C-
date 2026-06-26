@@ -1,51 +1,37 @@
-﻿cmake_minimum_required (VERSION 3.15)
+cmake_minimum_required(VERSION 3.15)
+project(Chess)
 
-project (Chess)
-
-# New CMake versions map C++20 to /std:c++20 instead of c++latest, so <format>
-# and other unstable ABI features aren't supported. Use C++23 for such versions
 if (MSVC AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.21)
     set(CMAKE_CXX_STANDARD 23)
-else ()
+else()
     set(CMAKE_CXX_STANDARD 20)
-endif ()
+endif()
 
-set (CMAKE_CXX_STANDARD_REQUIRED ON)
-set (CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (MSVC)
-    add_compile_options (/W4 /permissive- /Zc:externConstexpr /Zc:inline)
-endif ()
-
-add_executable (Chess
-        src/Piece.cpp
-        include/Piece.h
-        src/Board.cpp
-        include/Board.h
-        src/Rook.cpp
-        include/Rook.h
-        src/Bishop.cpp
-        include/Bishop.h
-        src/Queen.cpp
-        include/Queen.h
-        src/King.cpp
-        include/King.h
-        src/Knight.cpp
-        include/Knight.h
-        src/Pawn.cpp
-        include/Pawn.h
-        src/main.cpp
-        include/MyExceptions.h
-        src/AIEngine.cpp
-        include/AIEngine.h
-        include/GameRunner.h
-        src/GameRunner.cpp
-        include/Exception_InvalidMove.h
+add_executable(Chess
+    src/main.cpp
+    src/Board.cpp
+    src/Chess.cpp
+    src/Piece.cpp
+    src/Rook.cpp
+    src/Bishop.cpp
+    src/Queen.cpp
+    src/King.cpp
+    src/Knight.cpp
+    src/Pawn.cpp
+    src/AIEngine.cpp
+    src/GameRunner.cpp
 )
 
+target_include_directories(Chess PRIVATE include)
 
-add_subdirectory (include)
-add_subdirectory (src)
+find_package(Threads REQUIRED)
+target_link_libraries(Chess PRIVATE Threads::Threads)
 
-
-
+if (MSVC)
+    target_compile_options(Chess PRIVATE /W4 /permissive- /Zc:externConstexpr /Zc:inline)
+else()
+    target_compile_options(Chess PRIVATE -Wall -Wextra)
+endif()
