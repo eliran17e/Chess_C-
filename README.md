@@ -24,7 +24,6 @@ Requires a C++20 compiler, CMake ≥ 3.15, and a threads library.
 ```sh
 sudo apt install -y g++ cmake make   # Linux
 
-cd Chess
 cmake -B build
 cmake --build build
 ./build/Chess
@@ -61,7 +60,7 @@ varied, human-like play.
 ## Project structure
 
 ```
-Chess/
+.
 ├── CMakeLists.txt
 ├── include/        # headers (Board, Piece hierarchy, AIEngine, GameRunner, ...)
 └── src/            # implementations + main.cpp
