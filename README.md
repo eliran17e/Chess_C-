@@ -1,155 +1,85 @@
-<table>
-<tr style="border: none">
-<td style="border: none">
+# Chess Engine (C++)
 
-# THE Chess Template Repository
-
-</td>
-<td align="right" style="border: none">
-<img src="./img/scaleup.png" alt="Scaleup" height="100">
-</td>
-</tr>
-
-</table>
-This is a template repository for the Tel Hai Excellenteam (THE) CPP course.
-
-All exercises and submissions should follow the format of this repository. For your convenience, you can start each assignment by cloning this template.
-
-## Environment Setup
-During the course we will utilize Linux based operating system (OS), to run and execute programs.
-
-### Windows Installation
-1. Install [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/install
-) , with Ubuntu distribution.
-
-
-### Mac Installation
-1. Follow the instruction presented in the following [video]( https://www.youtube.com/watch?v=LjL_N0OZxvY
-), install Ubuntu (no GUI) version
-2. To install GUI, use following [guide](https://askubuntu.com/questions/53822/how-do-you-run-ubuntu-server-with-a-gui
-)
-3. In case you forgot the default credentials, read following [article](https://www.debugpoint.com/virtualbox-id-password/
-).
-
-
-### Linux Installation
-Ensure you have `g++`, `CMake`, and `make` installed:
-
-```sh
-sudo apt update
-sudo apt install -y g++ cmake make
-```
-
-## Grading and Conventions
-Your assignment will be graded according to the following criteria. Please make sure your assignment follows the standards and conventions outlined below:
-
-
-For best practices please use examples presented in [PRACTICES.md](PRACTICES.md), if still there is an uncertainty or missing use cases, you are highly encouraged to contact the staff for further clarifications.
-
-### Branching
-Use the [CONTRIBUTING.md](CONTRIBUTING.md) file as your guideline for proper use of Git. For more information, you are encouraged to search online for "[GitHub Workflow Methodology](https://www.youtube.com/watch?v=U_IFGpJDbeU&ab_channel=DevOpsToolkit)."
-
-
-### Repository Structure
-Please follow the guidelines in this section strictly.
-
-- The repository should include a `CMakeLists.txt` file at the root directory.
-- The repository **MUST NOT** include any compiled binaries (e.g., build/, .o files, a.out, or any other generated executables).(put those file names in `.gitignore` file)
+A console-based chess engine written in modern C++. It enforces full move legality,
+detects all standard end-of-game conditions, and ships with a multithreaded
+minimax AI that can play against you, suggest moves, or play itself.
 
 <p align="center">
-  <img src="./img/cpp-logo.png" alt="C++ Logo" width="100" height="100">
-  <img src="./img/linux-logo.jpg" alt="Linux Logo" width="100" height="100">
-</p>    
-
-#### GitHub Configuration
-* The repository should include a `README.md` file at the root directory.
-* The repository should include a `CONTRIBUTING.md` file at the root directory.
-* You must have a `.gitignore` file, and there shouldn’t be any unnecessary files in the repository.
-* 🚨 **CRITICAL:** Repositories without a workflow file at `.github/workflows/c-cpp.yml` will not be graded. :(
-* You must have an `img` directory at the root directory.
-
-#### Project's Files
-
-- The repository should include a `main.cpp` file in src directory.
-- The repository should include a `src` directory at the root.
-  - All source files should be placed in the `src` directory.
-- The repository should include a `include` directory at the root.
-  - All `.h` files should be placed in the `include` directory.
-- The repository should include a `test` directory at the root.
-  - All tests should be placed in the `test` directory.
-
-
-#### Project Tree
-
-Project tree should match the following structure:
-
-```bash
-.
-├── CONTRIBUTING.md
-├── .git
-│   ├── ...
-├── .github
-│   └── workflows
-│       └── c-cpp.yml
-├── .gitignore
-├── img
-│   ├── excellenteam.png
-│   ├── scaleup.png
-│   └── cpp_logo.png
-├── README.md
-├── CMakeLists.txt
-├── src
-│   ├── main.cpp
-│   ├── example.cpp
-│   ├── ...
-├── include
-│   ├── example.h
-│   ├── ...
-├── tests
-│   ├── ...
-```
-## Compilation Instructions
-The evaluators will compile your code using **CMake**. Ensure your project follows the CMake structure correctly.
-
-To compile your project manually, use the following commands:
-
-```sh
-mkdir -p build
-cd build
-cmake ..
-make
-./Chess 
-```
-
-Any project that does not compile properly using these steps will not be graded.
-
-
-## How to Submit an Exercise
-You are required to submit each exercise using "GitHub Classroom". To do this, you must upload a link to your "GitHub Classroom" repository via Moodle..
-
-### Branching and Pull Request Guidelines
-
-- 🚨 Your `main` branch **must remain clean and stable** at all times. Never push directly to `main`.  
-- Create a **new branch** from `main` for each exercise (e.g., `exercise1`, `feature/queen-movement`, etc.).  
-- Work on those branches and push your changes there.  
-- Once you're done, open a **Pull Request (PR)** from your branch where all the changes where made into `main`.  
-- In the PR, review your changes carefully using GitHub’s diff viewer.  
-- Make sure all checks pass (e.g., linter, build).  
-- After merging the PR into `main`, you can submit the repository link via Moodle.
-
-
-### Pre-submission Checkup
-1. Make sure you've answered all the questions.  
-2. Review and refactor your code for better readability (ideally, review your code one or two days later — sometimes it's better to review with fresh eyes).  
-3. Ensure that all intended files are uploaded to Git and follow the structure convention outlined in the [Repository Structure](#repository-structure) section.  
-4. Ensure that your code is running.  
-5. Once you open a PR, review the changes **carefully**. You can leverage GitHub's built-in diff viewer.  
-6. Wait and confirm that the linter test completed successfully. If the linter test fails, assess the errors and refactor accordingly — otherwise, each error will negatively impact your grade.  
-7. Make sure you followed the [Branching and Pull Request Guidelines](#branching-and-pull-request-guidelines).  
-8. Upload the repository link to Moodle.  
-9. Good luck :)
-
-<!-- Center Excellenteam image -->
-<p align="center">
-  <img src="./img/excellenteam.png" alt="Excellenteam">
+  <img src="./img/cpp-logo.png" alt="C++" height="90">
 </p>
+
+## Features
+
+- **Complete move-legality rules** — per-piece movement, path blocking, pawn promotion, and castling (rights tracking + path/through-check validation).
+- **End-game detection** — check, checkmate, stalemate, the 50-move rule, threefold repetition, and draw by insufficient material.
+- **Minimax AI** — evaluates positions by material, center control, and capture safety, searching to a user-chosen depth (1–6).
+- **Multithreading** — top-level move evaluation is parallelized across a configurable number of threads (0–8).
+- **Three play modes** — manual (both sides, with AI suggestions), AI vs AI autoplay, and human vs AI.
+- **Cross-platform console UI** — ANSI rendering on Linux/macOS, Win32 console API on Windows.
+
+## Build
+
+Requires a C++20 compiler, CMake ≥ 3.15, and a threads library.
+
+```sh
+sudo apt install -y g++ cmake make   # Linux
+
+cd Chess
+cmake -B build
+cmake --build build
+./build/Chess
+```
+
+## Usage
+
+On launch you are prompted for:
+
+| Prompt | Range | Meaning |
+|--------|-------|---------|
+| AI depth | 1–6 | Search depth — higher is stronger but slower |
+| Threads | 0–8 | 0 = single-threaded; higher parallelizes AI analysis |
+| Mode | 0 / 1 / 2 | 0 = Manual, 1 = Autoplay (AI vs AI), 2 = Play vs Computer |
+| Moves | 1–1000 | (Autoplay only) number of moves to play |
+
+Enter moves in coordinate notation, e.g. `b4d4`. Castling uses a custom notation
+(`a5a3`, `a5a7`, `h5h3`, `h5h7`). Type `exit` to quit.
+
+## How the AI works
+
+The engine scores each candidate move with a minimax search from the current
+position:
+
+- **Material** — standard piece values, summed from White's perspective.
+- **Positioning** — a small bonus for occupying the four central files/ranks.
+- **Capture safety** — full credit for a capture that can't be immediately recaptured, partial credit otherwise.
+- **Lookahead** — simulates the opponent's best replies down to the chosen depth.
+
+Candidate moves are ranked with a bounded priority queue; in autoplay and
+vs-computer modes the engine picks randomly among the top moves for more
+varied, human-like play.
+
+## Project structure
+
+```
+Chess/
+├── CMakeLists.txt
+├── include/        # headers (Board, Piece hierarchy, AIEngine, GameRunner, ...)
+└── src/            # implementations + main.cpp
+```
+
+## Known limitations
+
+- No en passant.
+- Castling path/through-check validation applies to the human player only, not AI-generated moves.
+- Console interface only — no GUI.
+
+## Possible improvements
+
+- En passant and full castling parity for the AI.
+- Alpha-beta pruning and transposition tables for deeper, faster search.
+- Undo/redo, save/load (FEN/PGN), and move timers.
+- A unit-test suite and a graphical front-end.
+
+---
+
+<sub>Originally built as a C++ course exercise at Tel-Hai Excellenteam, then refactored for clarity and correctness.</sub>

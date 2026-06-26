@@ -1,11 +1,11 @@
-# Build directories
-/build/
-Chess/cmake-build-debug/
-Chess/cmake-build-release/
+# Build directories (any depth)
+build/
+cmake-build-*/
 
 # CMake artifacts
-/CMakeCache.txt
-/CMakeFiles/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
 *.o
 *.a
 *.so
