@@ -1,5 +1,7 @@
 # Chess Engine (C++)
 
+![C++ CI](https://github.com/eliran17e/Chess_C-/actions/workflows/c-cpp.yml/badge.svg)
+
 A console-based chess engine written in modern C++. It enforces full move legality,
 detects all standard end-of-game conditions, and ships with a multithreaded
 minimax AI that can play against you, suggest moves, or play itself.
@@ -27,6 +29,17 @@ sudo apt install -y g++ cmake make   # Linux
 cmake -B build
 cmake --build build
 ./build/Chess
+```
+
+## Tests
+
+The unit-test suite uses [Catch2](https://github.com/catchorg/Catch2) (fetched
+automatically by CMake) and covers piece movement rules and core board logic.
+
+```sh
+cmake -B build -DBUILD_TESTS=ON
+cmake --build build
+ctest --test-dir build --output-on-failure
 ```
 
 ## Usage
@@ -63,7 +76,8 @@ varied, human-like play.
 .
 ├── CMakeLists.txt
 ├── include/        # headers (Board, Piece hierarchy, AIEngine, GameRunner, ...)
-└── src/            # implementations + main.cpp
+├── src/            # implementations + main.cpp
+└── tests/          # Catch2 unit tests
 ```
 
 ## Known limitations
@@ -77,7 +91,7 @@ varied, human-like play.
 - En passant and full castling parity for the AI.
 - Alpha-beta pruning and transposition tables for deeper, faster search.
 - Undo/redo, save/load (FEN/PGN), and move timers.
-- A unit-test suite and a graphical front-end.
+- Broader test coverage and a graphical front-end.
 
 ---
 
